@@ -1,0 +1,6 @@
+/Users/yongbo.xue/AiProjects/ws-manager/chat-backend/src/main/java/com/example/chat/model/Room.java
+/Users/yongbo.xue/AiProjects/ws-manager/chat-backend/src/main/java/com/example/chat/model/RoomRequest.java
+/Users/yongbo.xue/AiProjects/ws-manager/chat-backend/src/main/java/com/example/chat/config/WebSocketConfig.java
+/Users/yongbo.xue/AiProjects/ws-manager/chat-backend/src/main/java/com/example/chat/controller/ChatController.java
+/Users/yongbo.xue/AiProjects/ws-manager/chat-backend/src/main/java/com/example/chat/model/ChatMessage.java
+/Users/yongbo.xue/AiProjects/ws-manager/chat-backend/src/main/java/com/example/chat/ChatApplication.java
