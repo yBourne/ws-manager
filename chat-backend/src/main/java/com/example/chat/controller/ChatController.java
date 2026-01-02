@@ -144,25 +144,30 @@ public class ChatController {
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
 
+        if (headerAccessor.getSessionAttributes() == null) {
+            return;
+        }
+
         String username = (String) headerAccessor.getSessionAttributes().get("username");
         String roomId = (String) headerAccessor.getSessionAttributes().get("roomId");
 
         if (username != null && roomId != null) {
-            logger.info("User Disconnected: {} from room {}", username, roomId);
+            logger.info("User Disconnected (Network Switch/Drop): {} from room {}", username, roomId);
             Room room = rooms.get(roomId);
             if (room != null) {
-                room.getUsers().remove(username);
+                boolean removed = room.getUsers().remove(username);
+                if (removed) {
+                    ChatMessage leaveMessage = ChatMessage.builder()
+                            .type(ChatMessage.MessageType.LEAVE)
+                            .sender(username)
+                            .roomId(roomId)
+                            .content(username + " disconnected")
+                            .timestamp(LocalDateTime.now().toString())
+                            .build();
 
-                ChatMessage leaveMessage = ChatMessage.builder()
-                        .type(ChatMessage.MessageType.LEAVE)
-                        .sender(username)
-                        .roomId(roomId)
-                        .content(username + " disconnected")
-                        .timestamp(LocalDateTime.now().toString())
-                        .build();
-
-                messagingTemplate.convertAndSend("/topic/room/" + roomId, leaveMessage);
-                messagingTemplate.convertAndSend("/topic/room/" + roomId + "/sync", room);
+                    messagingTemplate.convertAndSend("/topic/room/" + roomId, leaveMessage);
+                    messagingTemplate.convertAndSend("/topic/room/" + roomId + "/sync", room);
+                }
             }
         }
     }

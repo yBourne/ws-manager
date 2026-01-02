@@ -24,6 +24,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
 }) => {
     const [inputValue, setInputValue] = useState('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -32,6 +33,14 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
+
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'inherit';
+            const scrollHeight = textareaRef.current.scrollHeight;
+            textareaRef.current.style.height = `${Math.min(scrollHeight, 120)}px`;
+        }
+    }, [inputValue]);
 
     const handleSend = (e: React.FormEvent) => {
         e.preventDefault();
@@ -122,7 +131,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
                                                 })()}
                                             </span>
                                         </div>
-                                        <div className={`px-4 py-2 rounded-2xl shadow-sm text-sm ${isOwn
+                                        <div className={`px-4 py-2 rounded-2xl shadow-sm text-sm whitespace-pre-wrap break-words ${isOwn
                                             ? 'bg-indigo-600 text-white rounded-tr-none'
                                             : 'bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-700 rounded-tl-none'
                                             }`}>
@@ -137,18 +146,27 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
 
                     {/* Input */}
                     <div className="p-3 md:p-4 bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800">
-                        <form onSubmit={handleSend} className="flex gap-2">
-                            <input
-                                type="text"
+                        <form onSubmit={handleSend} className="flex items-end gap-2">
+                            <textarea
+                                ref={textareaRef}
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                        e.preventDefault();
+                                        if (inputValue.trim()) {
+                                            handleSend(e);
+                                        }
+                                    }
+                                }}
                                 placeholder="Type your message..."
-                                className="flex-1 px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-base md:text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-sm"
+                                rows={1}
+                                className="flex-1 px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-base md:text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-500 resize-none min-h-[44px]"
                             />
                             <button
                                 type="submit"
                                 disabled={!inputValue.trim()}
-                                className="p-2 md:p-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-xl transition-colors shadow-lg shadow-indigo-500/20 flex items-center justify-center min-w-[44px]"
+                                className="p-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-xl transition-colors shadow-lg shadow-indigo-500/20 flex items-center justify-center min-w-[44px] h-[44px]"
                             >
                                 <Send size={20} />
                             </button>
