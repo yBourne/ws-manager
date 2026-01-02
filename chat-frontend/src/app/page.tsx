@@ -23,6 +23,11 @@ export default function Home() {
   const [roomId, setRoomId] = useState('');
   const [password, setPassword] = useState('');
   const [mode, setMode] = useState<'public' | 'join' | 'create'>('public');
+  const [mounted, setMounted] = useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleConnect = () => {
     connect();
@@ -71,7 +76,7 @@ export default function Home() {
               >
                 Establish Connection
               </button>
-              <p className="mt-4 text-xs text-zinc-500">Connecting to {typeof window !== 'undefined' && window.location.hostname}</p>
+              <p className="mt-4 text-xs text-zinc-500">Connecting to {mounted ? window.location.hostname : '...'}</p>
             </div>
           </div>
         ) : !currentRoomId ? (
@@ -140,7 +145,7 @@ export default function Home() {
                           onChange={(e) => setRoomId(e.target.value)}
                           placeholder="Room ID"
                           className="w-full pl-12 pr-4 py-3 bg-zinc-800 border border-zinc-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm text-white placeholder:text-zinc-600"
-                          required={mode !== 'public'}
+                          required
                         />
                       </div>
                     </div>
@@ -155,7 +160,7 @@ export default function Home() {
                           onChange={(e) => setPassword(e.target.value)}
                           placeholder="Password"
                           className="w-full pl-12 pr-4 py-3 bg-zinc-800 border border-zinc-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm text-white placeholder:text-zinc-600"
-                          required={mode !== 'public'}
+                          required
                         />
                       </div>
                     </div>
