@@ -168,7 +168,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
                         <div ref={messagesEndRef} />
                     </div>
 
-                    {/* Input */}
+                    {/* Input part */}
                     <div className="p-3 md:p-4 bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800">
                         <form onSubmit={handleSend} className="flex items-end gap-2 max-w-4xl mx-auto">
                             <textarea
