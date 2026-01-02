@@ -25,6 +25,7 @@ export default function Home() {
   const [isCreating, setIsCreating] = useState(false);
 
   const handleConnect = () => {
+    console.log('Establish Connection button clicked');
     connect();
   };
 

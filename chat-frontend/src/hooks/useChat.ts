@@ -31,20 +31,27 @@ export const useChat = () => {
     }, [unsubscribeAll]);
 
     const connect = useCallback(() => {
+        console.log('Connect function triggered');
+
         if (stompClient.current?.active) {
-            console.log('Already connected or connecting...');
+            console.log('UseChat: Already connected or connecting...');
             return;
         }
 
         const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
         const protocol = isHttps ? 'https' : 'http';
         const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+
+        // If we are on a production domain, we might want to use the same port or 8080
         const socketUrl = `${protocol}://${hostname}:8080/ws-chat`;
 
-        console.log(`Establishing connection to: ${socketUrl}`);
+        console.log(`Connecting to WebSocket at: ${socketUrl} (Protocol: ${protocol}, Host: ${hostname})`);
 
         const client = new Client({
-            webSocketFactory: () => new SockJS(socketUrl),
+            webSocketFactory: () => {
+                console.log('SockJS: Factory called for URL:', socketUrl);
+                return new SockJS(socketUrl);
+            },
             reconnectDelay: 5000,
             onConnect: (frame: IFrame) => {
                 console.log('Connected to STOMP broker');
