@@ -14,7 +14,7 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -47,7 +47,7 @@ public class ChatController {
         Room room = rooms.get(roomId);
         if (room != null) {
             logger.info("Chat message: room={}, sender={}", roomId, chatMessage.getSender());
-            chatMessage.setTimestamp(LocalDateTime.now().toString());
+            chatMessage.setTimestamp(Instant.now().toString());
             room.getMessageHistory().add(chatMessage);
             messagingTemplate.convertAndSend("/topic/room/" + roomId, chatMessage);
         } else {
@@ -114,7 +114,7 @@ public class ChatController {
                 .sender(username)
                 .roomId(roomId)
                 .content(username + " joined the room")
-                .timestamp(LocalDateTime.now().toString())
+                .timestamp(Instant.now().toString())
                 .build();
 
         // Broadcast join to the room
@@ -142,7 +142,7 @@ public class ChatController {
                         .sender(username)
                         .roomId(roomId)
                         .content(username + " left the room")
-                        .timestamp(LocalDateTime.now().toString())
+                        .timestamp(Instant.now().toString())
                         .build();
 
                 messagingTemplate.convertAndSend("/topic/room/" + roomId, leaveMessage);
@@ -187,7 +187,7 @@ public class ChatController {
                                 .sender(username)
                                 .roomId(roomId)
                                 .content(username + " disconnected")
-                                .timestamp(LocalDateTime.now().toString())
+                                .timestamp(Instant.now().toString())
                                 .build();
 
                         messagingTemplate.convertAndSend("/topic/room/" + roomId, leaveMessage);
@@ -205,7 +205,7 @@ public class ChatController {
         ChatMessage errorMessage = ChatMessage.builder()
                 .type(ChatMessage.MessageType.ERROR)
                 .content(error)
-                .timestamp(LocalDateTime.now().toString())
+                .timestamp(Instant.now().toString())
                 .build();
         messagingTemplate.convertAndSend("/topic/errors/" + username, errorMessage);
     }

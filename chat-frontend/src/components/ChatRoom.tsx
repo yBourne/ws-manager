@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { format } from 'date-fns';
+import { format, isToday } from 'date-fns';
 import { Send, User, Users, LogOut, MessageSquare } from 'lucide-react';
 import { ChatMessage } from '../types/chat';
 
@@ -146,11 +146,11 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
                                             <span className="text-[11px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-tight">{msg.sender}</span>
                                             <span className="text-[10px] text-zinc-400">
                                                 {(() => {
-                                                    try {
-                                                        return msg.timestamp ? format(new Date(msg.timestamp), 'HH:mm') : '';
-                                                    } catch (e) {
-                                                        return '';
-                                                    }
+                                                    if (!msg.timestamp) return '';
+                                                    const date = new Date(msg.timestamp);
+                                                    return isToday(date)
+                                                        ? format(date, 'HH:mm')
+                                                        : format(date, 'MMM d, HH:mm');
                                                 })()}
                                             </span>
                                         </div>
