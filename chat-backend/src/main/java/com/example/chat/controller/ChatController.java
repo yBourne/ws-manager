@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ChatController {
 
     private static final Logger logger = LoggerFactory.getLogger(ChatController.class);
+    private static final String PUBLIC_ROOM_ID = "Public Lounge";
     private final SimpMessagingTemplate messagingTemplate;
     // In-memory room storage: Key = roomId
     private final Map<String, Room> rooms = new ConcurrentHashMap<>();
@@ -31,6 +32,13 @@ public class ChatController {
 
     public ChatController(SimpMessagingTemplate messagingTemplate) {
         this.messagingTemplate = messagingTemplate;
+
+        // Initialize Public Lounge
+        rooms.put(PUBLIC_ROOM_ID, Room.builder()
+                .id(PUBLIC_ROOM_ID)
+                .password("") // Empty password for public room
+                .build());
+        logger.info("Initialized Public Lounge room");
     }
 
     @MessageMapping("/chat.sendMessage")

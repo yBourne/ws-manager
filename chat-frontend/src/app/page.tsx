@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import ChatRoom from '@/components/ChatRoom';
 import { useChat } from '@/hooks/useChat';
-import { Wifi, WifiOff, PlusCircle, LogIn, User as UserIcon, Lock, Hash } from 'lucide-react';
+import { Wifi, WifiOff, PlusCircle, LogIn, User as UserIcon, Lock, Hash, Coffee, Users } from 'lucide-react';
 
 export default function Home() {
   const {
@@ -38,6 +38,11 @@ export default function Home() {
     } else {
       joinRoom(roomId, password, username);
     }
+  };
+
+  const handleJoinPublic = () => {
+    if (!username) return;
+    joinRoom('Public Lounge', '', username);
   };
 
   return (
@@ -85,18 +90,32 @@ export default function Home() {
             </div>
 
             <div className="bg-zinc-900/50 backdrop-blur-xl border border-zinc-800 rounded-3xl shadow-2xl p-8">
-              <div className="flex p-1 bg-zinc-800 rounded-xl mb-8">
+              <div className="space-y-4 pt-2 border-t border-zinc-800/50 mt-6">
                 <button
+                  type="button"
+                  onClick={handleJoinPublic}
+                  className="w-full py-4 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-500 font-bold rounded-2xl border border-emerald-500/20 transition-all flex items-center justify-center gap-2 group"
+                >
+                  <Users size={20} className="group-hover:scale-110 transition-transform" />
+                  <span>Enter Public Lounge</span>
+                </button>
+                <p className="text-[10px] text-zinc-500 text-center uppercase tracking-widest font-semibold">Or join a private room</p>
+              </div>
+
+              <div className="flex p-1 bg-zinc-800 rounded-xl mb-6 mt-4">
+                <button
+                  type="button"
                   onClick={() => setIsCreating(false)}
                   className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${!isCreating ? 'bg-zinc-700 text-white shadow-sm' : 'text-zinc-400 hover:text-zinc-200'}`}
                 >
-                  Join Room
+                  Join
                 </button>
                 <button
+                  type="button"
                   onClick={() => setIsCreating(true)}
                   className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${isCreating ? 'bg-zinc-700 text-white shadow-sm' : 'text-zinc-400 hover:text-zinc-200'}`}
                 >
-                  Create Room
+                  Create
                 </button>
               </div>
 
