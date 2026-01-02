@@ -42,10 +42,13 @@ export const useChat = () => {
         const protocol = isHttps ? 'https' : 'http';
         const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
 
-        // If we are on a production domain, we might want to use the same port or 8080
-        const socketUrl = `${protocol}://${hostname}:8080/ws-chat`;
+        // Use port 8080 for local development, but omit it for custom domains (assume reverse proxy)
+        const isLocal = hostname === 'localhost' || hostname.startsWith('192.168.') || hostname.startsWith('127.');
+        const socketUrl = isLocal
+            ? `${protocol}://${hostname}:8080/ws-chat`
+            : `${protocol}://${hostname}/ws-chat`;
 
-        console.log(`Connecting to WebSocket at: ${socketUrl} (Protocol: ${protocol}, Host: ${hostname})`);
+        console.log(`Connecting to WebSocket at: ${socketUrl} (Protocol: ${protocol}, Host: ${hostname}, env: ${isLocal ? 'LOCAL' : 'REMOTE'})`);
 
         const client = new Client({
             webSocketFactory: () => {
