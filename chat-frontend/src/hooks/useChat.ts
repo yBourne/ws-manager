@@ -36,8 +36,10 @@ export const useChat = () => {
             return;
         }
 
+        const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+        const protocol = isHttps ? 'https' : 'http';
         const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-        const socketUrl = `http://${hostname}:8080/ws-chat`;
+        const socketUrl = `${protocol}://${hostname}:8080/ws-chat`;
 
         console.log(`Establishing connection to: ${socketUrl}`);
 
