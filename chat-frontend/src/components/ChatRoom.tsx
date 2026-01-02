@@ -124,7 +124,8 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
 
                 {/* Chat Area */}
                 <div className="flex-1 flex flex-col bg-slate-50 dark:bg-zinc-950">
-                    <div className="flex-1 overflow-y-auto p-3 md:p-4 space-y-4">
+                    <div className="flex-1 overflow-y-auto p-3 md:p-4 flex flex-col gap-4">
+                        <div className="mt-auto" />
                         {messages.map((msg, idx) => {
                             const isOwn = msg.sender === username;
                             const isSystem = msg.type === 'JOIN' || msg.type === 'LEAVE';
