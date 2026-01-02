@@ -56,6 +56,8 @@ export const useChat = () => {
                 return new SockJS(socketUrl);
             },
             reconnectDelay: 5000,
+            heartbeatIncoming: 10000,
+            heartbeatOutgoing: 10000,
             onConnect: (frame: IFrame) => {
                 console.log('Connected to STOMP broker');
                 setConnected(true);

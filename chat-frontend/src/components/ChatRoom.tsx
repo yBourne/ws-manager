@@ -23,6 +23,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
     onLeaveRoom,
 }) => {
     const [inputValue, setInputValue] = useState('');
+    const [showUsers, setShowUsers] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -51,47 +52,61 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
     };
 
     return (
-        <div className="flex flex-col h-[600px] max-h-[90svh] md:h-[600px] w-full max-w-4xl bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+        <div className="flex flex-col h-[600px] max-h-[95svh] md:h-[600px] w-full max-w-4xl bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
             {/* Header */}
-            <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800">
-                <div className="flex items-center gap-3">
-                    <div className="p-2 bg-indigo-500 rounded-lg text-white">
-                        <MessageSquare size={20} />
+            <div className="flex items-center justify-between px-3 md:px-6 py-2 md:py-4 bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800">
+                <div className="flex items-center gap-2 md:gap-3">
+                    <div className="p-1.5 md:p-2 bg-indigo-500 rounded-lg text-white">
+                        <MessageSquare size={18} className="md:w-5 md:h-5" />
                     </div>
                     <div>
-                        <h2 className="text-sm md:text-lg font-bold text-zinc-900 dark:text-zinc-100">Room: {roomId}</h2>
-                        <div className="flex items-center gap-1.5 text-[10px] md:text-xs text-zinc-500 dark:text-zinc-400">
+                        <h2 className="text-sm md:text-lg font-bold text-zinc-900 dark:text-zinc-100 line-clamp-1">Room: {roomId}</h2>
+                        <button
+                            onClick={() => setShowUsers(!showUsers)}
+                            className="flex items-center gap-1.5 text-[10px] md:text-xs text-indigo-600 dark:text-indigo-400 font-medium md:pointer-events-none"
+                        >
                             <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-                            <span>{users.length} members</span>
-                        </div>
+                            <span>{users.length} online</span>
+                            <span className="md:hidden underline">View list</span>
+                        </button>
                     </div>
                 </div>
-                <button
-                    onClick={onLeaveRoom}
-                    className="flex items-center gap-2 px-3 py-1.5 text-xs md:text-sm font-medium text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-lg transition-colors"
-                >
-                    <LogOut size={16} />
-                    <span className="hidden sm:inline">Leave Room</span>
-                    <span className="sm:hidden">Leave</span>
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={onLeaveRoom}
+                        className="flex items-center gap-2 px-2 md:px-3 py-1.5 text-xs md:text-sm font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-lg transition-colors"
+                    >
+                        <LogOut size={16} />
+                        <span className="hidden sm:inline">Leave Room</span>
+                        <span className="sm:hidden">Exit</span>
+                    </button>
+                </div>
             </div>
 
-            <div className="flex flex-1 overflow-hidden">
-                {/* User List Sidebar */}
-                <div className="w-64 border-r border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 overflow-y-auto hidden md:block">
-                    <div className="p-4">
-                        <div className="flex items-center gap-2 mb-4 text-zinc-500 text-xs font-semibold uppercase tracking-wider">
-                            <Users size={14} />
-                            Active Users
+            <div className="flex flex-1 overflow-hidden relative">
+                {/* User List Sidebar (Desktop and Mobile Overlay) */}
+                <div className={`
+                    ${showUsers ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+                    absolute md:relative z-20 w-64 h-full border-r border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 md:bg-zinc-50/50 md:dark:bg-zinc-900/50 backdrop-blur-md md:backdrop-blur-none transition-transform duration-300 md:block
+                `}>
+                    <div className="p-4 h-full flex flex-col">
+                        <div className="flex items-center justify-between mb-4 text-zinc-500 text-[10px] font-bold uppercase tracking-wider">
+                            <div className="flex items-center gap-2">
+                                <Users size={14} />
+                                Active Users
+                            </div>
+                            <button onClick={() => setShowUsers(false)} className="md:hidden p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded">
+                                Close
+                            </button>
                         </div>
-                        <ul className="space-y-2">
+                        <ul className="flex-1 space-y-2 overflow-y-auto pr-1">
                             {users.map((user, idx) => (
-                                <li key={idx} className="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-sm">
-                                    <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-300">
+                                <li key={idx} className={`flex items-center gap-2 p-2 rounded-xl border ${user === username ? 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800' : 'bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700'} shadow-sm`}>
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${user === username ? 'bg-indigo-500 text-white' : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300'}`}>
                                         <User size={16} />
                                     </div>
-                                    <span className="text-sm font-medium text-zinc-700 dark:text-zinc-200 truncate">
-                                        {user} {user === username && '(You)'}
+                                    <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-200 truncate">
+                                        {user} {user === username && '(Me)'}
                                     </span>
                                 </li>
                             ))}
@@ -99,17 +114,25 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
                     </div>
                 </div>
 
+                {/* Overlay for mobile user list */}
+                {showUsers && (
+                    <div
+                        className="absolute inset-0 z-10 bg-zinc-950/20 backdrop-blur-[2px] md:hidden"
+                        onClick={() => setShowUsers(false)}
+                    />
+                )}
+
                 {/* Chat Area */}
                 <div className="flex-1 flex flex-col bg-slate-50 dark:bg-zinc-950">
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                    <div className="flex-1 overflow-y-auto p-3 md:p-4 space-y-4">
                         {messages.map((msg, idx) => {
                             const isOwn = msg.sender === username;
                             const isSystem = msg.type === 'JOIN' || msg.type === 'LEAVE';
 
                             if (isSystem) {
                                 return (
-                                    <div key={idx} className="flex justify-center">
-                                        <span className="px-3 py-1 bg-zinc-200 dark:bg-zinc-800 rounded-full text-[10px] font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-tighter text-center">
+                                    <div key={idx} className="flex justify-center my-2">
+                                        <span className="px-3 py-1 bg-zinc-200 dark:bg-zinc-800 rounded-full text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-tighter text-center">
                                             {msg.content}
                                         </span>
                                     </div>
@@ -118,9 +141,9 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
 
                             return (
                                 <div key={idx} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                                    <div className={`max-w-[85%] md:max-w-[70%] group`}>
-                                        <div className={`flex items-center gap-2 mb-1 ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}>
-                                            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{msg.sender}</span>
+                                    <div className={`max-w-[90%] md:max-w-[75%] group`}>
+                                        <div className={`flex items-center gap-2 mb-1 px-1 ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}>
+                                            <span className="text-[11px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-tight">{msg.sender}</span>
                                             <span className="text-[10px] text-zinc-400">
                                                 {(() => {
                                                     try {
@@ -131,9 +154,9 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
                                                 })()}
                                             </span>
                                         </div>
-                                        <div className={`px-4 py-2 rounded-2xl shadow-sm text-sm whitespace-pre-wrap break-words ${isOwn
+                                        <div className={`px-4 py-2.5 rounded-2xl shadow-sm text-[15px] md:text-sm whitespace-pre-wrap break-words ${isOwn
                                             ? 'bg-indigo-600 text-white rounded-tr-none'
-                                            : 'bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-700 rounded-tl-none'
+                                            : 'bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-700 rounded-tl-none font-medium'
                                             }`}>
                                             {msg.content}
                                         </div>
@@ -146,7 +169,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
 
                     {/* Input */}
                     <div className="p-3 md:p-4 bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800">
-                        <form onSubmit={handleSend} className="flex items-end gap-2">
+                        <form onSubmit={handleSend} className="flex items-end gap-2 max-w-4xl mx-auto">
                             <textarea
                                 ref={textareaRef}
                                 value={inputValue}
@@ -159,14 +182,14 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
                                         }
                                     }
                                 }}
-                                placeholder="Type your message..."
+                                placeholder="Message..."
                                 rows={1}
-                                className="flex-1 px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-base md:text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-500 resize-none min-h-[44px]"
+                                className="flex-1 px-4 py-3 rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-[16px] md:text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-500 resize-none min-h-[46px]"
                             />
                             <button
                                 type="submit"
                                 disabled={!inputValue.trim()}
-                                className="p-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-xl transition-colors shadow-lg shadow-indigo-500/20 flex items-center justify-center min-w-[44px] h-[44px]"
+                                className="p-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-2xl transition-all shadow-xl shadow-indigo-500/20 flex items-center justify-center min-w-[46px] h-[46px] active:scale-95"
                             >
                                 <Send size={20} />
                             </button>

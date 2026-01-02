@@ -26,6 +26,9 @@ public class ChatController {
     // In-memory room storage: Key = roomId
     private final Map<String, Room> rooms = new ConcurrentHashMap<>();
 
+    // Track active sessions: Key = username, Value = last sessionId
+    private final Map<String, String> userSessions = new ConcurrentHashMap<>();
+
     public ChatController(SimpMessagingTemplate messagingTemplate) {
         this.messagingTemplate = messagingTemplate;
     }
@@ -91,6 +94,9 @@ public class ChatController {
         headerAccessor.getSessionAttributes().put("username", username);
         headerAccessor.getSessionAttributes().put("roomId", roomId);
 
+        // Track this session as the active one for this user
+        userSessions.put(username, headerAccessor.getSessionId());
+
         room.getUsers().add(username);
         logger.info("User {} joined room {}", username, roomId);
 
@@ -118,6 +124,7 @@ public class ChatController {
 
         if (roomId != null && username != null) {
             logger.info("Leave request: roomId={}, user={}", roomId, username);
+            userSessions.remove(username); // Explicit leave: clear session
             Room room = rooms.get(roomId);
             if (room != null) {
                 room.getUsers().remove(username);
@@ -150,24 +157,37 @@ public class ChatController {
 
         String username = (String) headerAccessor.getSessionAttributes().get("username");
         String roomId = (String) headerAccessor.getSessionAttributes().get("roomId");
+        String sessionId = headerAccessor.getSessionId();
 
         if (username != null && roomId != null) {
-            logger.info("User Disconnected (Network Switch/Drop): {} from room {}", username, roomId);
-            Room room = rooms.get(roomId);
-            if (room != null) {
-                boolean removed = room.getUsers().remove(username);
-                if (removed) {
-                    ChatMessage leaveMessage = ChatMessage.builder()
-                            .type(ChatMessage.MessageType.LEAVE)
-                            .sender(username)
-                            .roomId(roomId)
-                            .content(username + " disconnected")
-                            .timestamp(LocalDateTime.now().toString())
-                            .build();
+            // Only process if this is the session we have registered for this user
+            // This prevents a "ghost" disconnect from a previous session (e.g. network
+            // switch)
+            // from removing the user's new active session.
+            String currentSessionId = userSessions.get(username);
 
-                    messagingTemplate.convertAndSend("/topic/room/" + roomId, leaveMessage);
-                    messagingTemplate.convertAndSend("/topic/room/" + roomId + "/sync", room);
+            if (sessionId != null && sessionId.equals(currentSessionId)) {
+                logger.info("User Disconnected (Active Session): {} from room {}", username, roomId);
+                userSessions.remove(username);
+
+                Room room = rooms.get(roomId);
+                if (room != null) {
+                    boolean removed = room.getUsers().remove(username);
+                    if (removed) {
+                        ChatMessage leaveMessage = ChatMessage.builder()
+                                .type(ChatMessage.MessageType.LEAVE)
+                                .sender(username)
+                                .roomId(roomId)
+                                .content(username + " disconnected")
+                                .timestamp(LocalDateTime.now().toString())
+                                .build();
+
+                        messagingTemplate.convertAndSend("/topic/room/" + roomId, leaveMessage);
+                        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/sync", room);
+                    }
                 }
+            } else {
+                logger.info("User Ghost Session Disconnected (Ignored): {} (id={})", username, sessionId);
             }
         }
     }
