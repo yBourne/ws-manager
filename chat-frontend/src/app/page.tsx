@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import ChatRoom from '@/components/ChatRoom';
 import { useChat } from '@/hooks/useChat';
-import { Wifi, WifiOff, PlusCircle, LogIn, User as UserIcon, Lock, Hash, Coffee, Users } from 'lucide-react';
+import { Wifi, WifiOff, PlusCircle, LogIn, User as UserIcon, Lock, Hash, Coffee } from 'lucide-react';
 
 export default function Home() {
   const {
@@ -22,32 +22,30 @@ export default function Home() {
   const [username, setUsername] = useState('');
   const [roomId, setRoomId] = useState('');
   const [password, setPassword] = useState('');
-  const [isCreating, setIsCreating] = useState(false);
+  const [mode, setMode] = useState<'public' | 'join' | 'create'>('public');
 
   const handleConnect = () => {
-    console.log('Establish Connection button clicked');
     connect();
   };
 
   const handleAction = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!username || !roomId || !password) return;
+    if (!username) return;
 
-    if (isCreating) {
+    if (mode === 'public') {
+      joinRoom('Public Lounge', '', username);
+    } else if (mode === 'create') {
+      if (!roomId || !password) return;
       createRoom(roomId, password, username);
     } else {
+      if (!roomId || !password) return;
       joinRoom(roomId, password, username);
     }
   };
 
-  const handleJoinPublic = () => {
-    if (!username) return;
-    joinRoom('Public Lounge', '', username);
-  };
-
   return (
     <main className="min-h-screen bg-[#09090b] text-zinc-100 flex items-center justify-center p-4 md:p-8">
-      {/* Background elements for premium look */}
+      {/* Background elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-500/10 blur-[120px] rounded-full"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-500/10 blur-[120px] rounded-full"></div>
@@ -73,7 +71,7 @@ export default function Home() {
               >
                 Establish Connection
               </button>
-              <p className="mt-4 text-xs text-zinc-500">Connect to the WebSocket instance at localhost:8080</p>
+              <p className="mt-4 text-xs text-zinc-500">Connecting to {typeof window !== 'undefined' && window.location.hostname}</p>
             </div>
           </div>
         ) : !currentRoomId ? (
@@ -90,30 +88,25 @@ export default function Home() {
             </div>
 
             <div className="bg-zinc-900/50 backdrop-blur-xl border border-zinc-800 rounded-3xl shadow-2xl p-8">
-              <div className="space-y-4 pt-2 border-t border-zinc-800/50 mt-6">
+              <div className="flex p-1 bg-zinc-800 rounded-xl mb-8">
                 <button
                   type="button"
-                  onClick={handleJoinPublic}
-                  className="w-full py-4 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-500 font-bold rounded-2xl border border-emerald-500/20 transition-all flex items-center justify-center gap-2 group"
+                  onClick={() => setMode('public')}
+                  className={`flex-1 py-2 text-[10px] md:text-sm font-semibold rounded-lg transition-all ${mode === 'public' ? 'bg-zinc-700 text-white shadow-sm' : 'text-zinc-400 hover:text-zinc-200'}`}
                 >
-                  <Users size={20} className="group-hover:scale-110 transition-transform" />
-                  <span>Enter Public Lounge</span>
+                  Public
                 </button>
-                <p className="text-[10px] text-zinc-500 text-center uppercase tracking-widest font-semibold">Or join a private room</p>
-              </div>
-
-              <div className="flex p-1 bg-zinc-800 rounded-xl mb-6 mt-4">
                 <button
                   type="button"
-                  onClick={() => setIsCreating(false)}
-                  className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${!isCreating ? 'bg-zinc-700 text-white shadow-sm' : 'text-zinc-400 hover:text-zinc-200'}`}
+                  onClick={() => setMode('join')}
+                  className={`flex-1 py-2 text-[10px] md:text-sm font-semibold rounded-lg transition-all ${mode === 'join' ? 'bg-zinc-700 text-white shadow-sm' : 'text-zinc-400 hover:text-zinc-200'}`}
                 >
                   Join
                 </button>
                 <button
                   type="button"
-                  onClick={() => setIsCreating(true)}
-                  className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${isCreating ? 'bg-zinc-700 text-white shadow-sm' : 'text-zinc-400 hover:text-zinc-200'}`}
+                  onClick={() => setMode('create')}
+                  className={`flex-1 py-2 text-[10px] md:text-sm font-semibold rounded-lg transition-all ${mode === 'create' ? 'bg-zinc-700 text-white shadow-sm' : 'text-zinc-400 hover:text-zinc-200'}`}
                 >
                   Create
                 </button>
@@ -128,42 +121,46 @@ export default function Home() {
                       type="text"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
-                      placeholder="Enter your name"
+                      placeholder="Enter nickname"
                       className="w-full pl-12 pr-4 py-3 bg-zinc-800 border border-zinc-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm text-white placeholder:text-zinc-600"
                       required
                     />
                   </div>
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-zinc-500 ml-1 uppercase tracking-wider">Room Key</label>
-                  <div className="relative">
-                    <Hash className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
-                    <input
-                      type="text"
-                      value={roomId}
-                      onChange={(e) => setRoomId(e.target.value)}
-                      placeholder="Room Key"
-                      className="w-full pl-12 pr-4 py-3 bg-zinc-800 border border-zinc-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm text-white placeholder:text-zinc-600"
-                      required
-                    />
-                  </div>
-                </div>
+                {mode !== 'public' && (
+                  <>
+                    <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2 duration-300">
+                      <label className="text-xs font-semibold text-zinc-500 ml-1 uppercase tracking-wider">Room Key</label>
+                      <div className="relative">
+                        <Hash className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
+                        <input
+                          type="text"
+                          value={roomId}
+                          onChange={(e) => setRoomId(e.target.value)}
+                          placeholder="Room ID"
+                          className="w-full pl-12 pr-4 py-3 bg-zinc-800 border border-zinc-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm text-white placeholder:text-zinc-600"
+                          required={mode !== 'public'}
+                        />
+                      </div>
+                    </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-zinc-500 ml-1 uppercase tracking-wider">Security Password</label>
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Room Password"
-                      className="w-full pl-12 pr-4 py-3 bg-zinc-800 border border-zinc-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm text-white placeholder:text-zinc-600"
-                      required
-                    />
-                  </div>
-                </div>
+                    <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2 duration-400">
+                      <label className="text-xs font-semibold text-zinc-500 ml-1 uppercase tracking-wider">Security Password</label>
+                      <div className="relative">
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
+                        <input
+                          type="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="Password"
+                          className="w-full pl-12 pr-4 py-3 bg-zinc-800 border border-zinc-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm text-white placeholder:text-zinc-600"
+                          required={mode !== 'public'}
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
 
                 {error && (
                   <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-500 text-xs">
@@ -175,8 +172,8 @@ export default function Home() {
                   type="submit"
                   className="w-full py-4 mt-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl transition-all shadow-xl shadow-indigo-500/20 flex items-center justify-center gap-2 group"
                 >
-                  {isCreating ? <PlusCircle size={20} /> : <LogIn size={20} />}
-                  <span>{isCreating ? 'Initialize Room' : 'Enter Room'}</span>
+                  {mode === 'public' ? <Coffee size={20} /> : mode === 'create' ? <PlusCircle size={20} /> : <LogIn size={20} />}
+                  <span>{mode === 'public' ? 'Join Lounge' : mode === 'create' ? 'Initialize Room' : 'Enter Room'}</span>
                 </button>
               </form>
             </div>

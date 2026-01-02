@@ -142,13 +142,13 @@ export const useChat = () => {
         setError(null);
         pendingRoomId.current = roomId;
 
+        subscribeToRoom(roomId, username);
+
         console.log('Publishing createRoom event');
         stompClient.current.publish({
             destination: '/app/chat.createRoom',
             body: JSON.stringify({ roomId, password, username })
         });
-
-        subscribeToRoom(roomId, username);
     }, [connected, subscribeToRoom]);
 
     const joinRoom = useCallback((roomId: string, password: string, username: string) => {
@@ -156,13 +156,13 @@ export const useChat = () => {
         setError(null);
         pendingRoomId.current = roomId;
 
+        subscribeToRoom(roomId, username);
+
         console.log('Publishing joinRoom event');
         stompClient.current.publish({
             destination: '/app/chat.joinRoom',
             body: JSON.stringify({ roomId, password, username })
         });
-
-        subscribeToRoom(roomId, username);
     }, [connected, subscribeToRoom]);
 
     const sendMessage = useCallback((content: string, sender: string, roomId: string) => {
