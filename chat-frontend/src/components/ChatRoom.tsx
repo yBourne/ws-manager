@@ -42,27 +42,28 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
     };
 
     return (
-        <div className="flex flex-col h-[600px] w-full max-w-4xl bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+        <div className="flex flex-col h-[600px] max-h-[90svh] md:h-[600px] w-full max-w-4xl bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800">
+            <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-indigo-500 rounded-lg text-white">
                         <MessageSquare size={20} />
                     </div>
                     <div>
-                        <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">Room: {roomId}</h2>
-                        <div className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+                        <h2 className="text-sm md:text-lg font-bold text-zinc-900 dark:text-zinc-100">Room: {roomId}</h2>
+                        <div className="flex items-center gap-1.5 text-[10px] md:text-xs text-zinc-500 dark:text-zinc-400">
                             <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-                            <span>{users.length} members online</span>
+                            <span>{users.length} members</span>
                         </div>
                     </div>
                 </div>
                 <button
                     onClick={onLeaveRoom}
-                    className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-lg transition-colors"
+                    className="flex items-center gap-2 px-3 py-1.5 text-xs md:text-sm font-medium text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-lg transition-colors"
                 >
                     <LogOut size={16} />
-                    Leave Room
+                    <span className="hidden sm:inline">Leave Room</span>
+                    <span className="sm:hidden">Leave</span>
                 </button>
             </div>
 
@@ -99,7 +100,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
                             if (isSystem) {
                                 return (
                                     <div key={idx} className="flex justify-center">
-                                        <span className="px-3 py-1 bg-zinc-200 dark:bg-zinc-800 rounded-full text-[10px] font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-tighter">
+                                        <span className="px-3 py-1 bg-zinc-200 dark:bg-zinc-800 rounded-full text-[10px] font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-tighter text-center">
                                             {msg.content}
                                         </span>
                                     </div>
@@ -108,7 +109,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
 
                             return (
                                 <div key={idx} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                                    <div className={`max-w-[70%] group`}>
+                                    <div className={`max-w-[85%] md:max-w-[70%] group`}>
                                         <div className={`flex items-center gap-2 mb-1 ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}>
                                             <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">{msg.sender}</span>
                                             <span className="text-[10px] text-zinc-400">
@@ -135,19 +136,19 @@ const ChatRoom: React.FC<ChatRoomProps> = ({
                     </div>
 
                     {/* Input */}
-                    <div className="p-4 bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800">
+                    <div className="p-3 md:p-4 bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800">
                         <form onSubmit={handleSend} className="flex gap-2">
                             <input
                                 type="text"
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
                                 placeholder="Type your message..."
-                                className="flex-1 px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm text-zinc-900 dark:text-zinc-100"
+                                className="flex-1 px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-base md:text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-sm"
                             />
                             <button
                                 type="submit"
                                 disabled={!inputValue.trim()}
-                                className="p-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-xl transition-colors shadow-lg shadow-indigo-500/20"
+                                className="p-2 md:p-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-xl transition-colors shadow-lg shadow-indigo-500/20 flex items-center justify-center min-w-[44px]"
                             >
                                 <Send size={20} />
                             </button>

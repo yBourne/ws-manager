@@ -46,7 +46,7 @@ export const useChat = () => {
         const isLocal = hostname === 'localhost' || hostname.startsWith('192.168.') || hostname.startsWith('127.');
         const socketUrl = isLocal
             ? `${protocol}://${hostname}:8080/ws-chat`
-            : `${protocol}://${hostname}/ws-chat`;
+            : '/ws-chat'; // Relative URL for production, handled by Next.js rewrites
 
         console.log(`Connecting to WebSocket at: ${socketUrl} (Protocol: ${protocol}, Host: ${hostname}, env: ${isLocal ? 'LOCAL' : 'REMOTE'})`);
 
@@ -63,7 +63,17 @@ export const useChat = () => {
             },
             onStompError: (frame: IFrame) => {
                 console.error('STOMP error:', frame.headers['message']);
-                setError(frame.headers['message']);
+                setError(`STOMP Error: ${frame.headers['message']}`);
+            },
+            onWebSocketError: (event) => {
+                console.error('WebSocket Error:', event);
+                setError('WebSocket Connection Failed. Checking system status...');
+            },
+            onWebSocketClose: (event) => {
+                console.log('WebSocket Closed:', event);
+                if (!event.wasClean) {
+                    setError(`Connection lost: ${event.reason || 'Unexpected closure'}`);
+                }
             },
             onDisconnect: () => {
                 console.log('Disconnected from STOMP broker');
